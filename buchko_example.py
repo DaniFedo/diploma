@@ -31,12 +31,18 @@ def get_model_detection_function(model):
 
 
 # recover our saved model
-pipeline_config = 'models/research/object_detection/configs/tf2/ssd_mobilenet_v2_fpnlite_640x640_coco17_tpu-8.config'
+pipeline_config = 'models/research/object_detection/configs/tf2/ssd_efficientdet_d7_1536x1536_coco17_tpu-32.config'
 # generally you want to put the last ckpt from training in here
 model_dir = 'ckpt-0'
 # print(os.getcwd())
 configs = config_util.get_configs_from_pipeline_file(pipeline_config)
 model_config = configs['model']
+
+print("Model started loading")
+# model_path = "efficientdet_d7_1"
+# detector = hub.load(model_path)
+
+print("Model loaded")
 detection_model = model_builder.build(
     model_config=model_config, is_training=False)
 
@@ -44,10 +50,12 @@ detection_model = model_builder.build(
 ckpt = tf.compat.v2.train.Checkpoint(
     model=detection_model)
 ckpt.restore(
-    'models/research/object_detection/ssd_mobilenet_v2_fpnlite_640x640_coco17_tpu-8/checkpoint/ckpt-0')
+    'efficientdet_d7_1/variables/variables')
 # ckpt.restore(os.path.join('ckpt-0'))
 
 detect_fn = get_model_detection_function(detection_model)
+
+
 
 # map labels for inference decoding
 label_map_path = configs['eval_input_config'].label_map_path
@@ -61,9 +69,9 @@ print(category_index)
 label_map_dict = label_map_util.get_label_map_dict(label_map, use_display_name=True)
 
 video_path = "resources/videos/street.mp4"
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(video_path)
 # Define the codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter('stb_out.mp4', fourcc, 20.0, (640, 480))
 
 
@@ -92,6 +100,8 @@ while True:
 
     input_tensor = tf.convert_to_tensor(
         np.expand_dims(image_np, 0), dtype=tf.float32)
+    # input_tensor = input_tensor[tf.newaxis, ...]
+    # input_tensor = input_tensor[:, :, :, :3]
 
     detections, predictions_dict, shapes = detect_fn(input_tensor)
 

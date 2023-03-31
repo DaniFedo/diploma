@@ -39,9 +39,9 @@ def load_image_into_numpy_array(image):
 #             index += 1
 
 label_map_path = "models/research/object_detection/data/mscoco_complete_label_map.pbtxt"
-print(f"PATH: {label_map_path}")
+# print(f"PATH: {label_map_path}")
 label_map = label_map_util.load_labelmap(label_map_path)
-print(f"MAP: {label_map}")
+# print(f"MAP: {label_map}")
 categories = label_map_util.convert_label_map_to_categories(
     label_map,
     max_num_classes=label_map_util.get_max_label_map_index(label_map),
@@ -61,6 +61,7 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter('output.avi', -1, 20.0, (640, 480))
 # labels = {}
 counter = 0
+print(f"CAP: {cv2.CAP_PROP_FRAME_COUNT}")
 while counter < cv2.CAP_PROP_FRAME_COUNT:
     ret, image_np = cap.read()
 

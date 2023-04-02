@@ -26,21 +26,25 @@ def load_image_into_numpy_array(image):
 
 start_time = time.time()
 label_map_path = "models/research/object_detection/data/mscoco_complete_label_map.pbtxt"
-print(f"PATH: {label_map_path}")
 label_map = label_map_util.load_labelmap(label_map_path)
+
+print(f"PATH: {label_map_path}")
 print(f"MAP: {label_map}")
+
 categories = label_map_util.convert_label_map_to_categories(
     label_map,
     max_num_classes=label_map_util.get_max_label_map_index(label_map),
     use_display_name=True)
+
 category_index = label_map_util.create_category_index(categories)
 
-# Map the class indices to label names
+
 video_path = "resources/videos/street.mp4"
 cap = cv2.VideoCapture(video_path)
-# Define the codec and create VideoWriter object
+
 print(f"Width:{cap.get(3)}")
 print(f"Height:{cap.get(4)}")
+
 frameSize = (cap.get(3), cap.get(4))
 out = cv2.VideoWriter('output_lite4.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 20.0, (1920, 1080))
 
@@ -50,7 +54,11 @@ model = hub.load(model_path)
 counter = 0
 images_np_with_detections = []
 print("Starting processing video")
-while counter < cap.get(cv2.CAP_PROP_FRAME_COUNT) and cap.isOpened():
+
+
+# print(f"length of CAP_PROP_FRAME_COUNT: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
+
+while cap.isOpened():
 
     ret, image_np = cap.read()
 
@@ -64,17 +72,9 @@ while counter < cap.get(cv2.CAP_PROP_FRAME_COUNT) and cap.isOpened():
 
     boxes, scores, classes, num_detections = model(image_tensor)
 
-    # print(boxes)
     boxes = boxes[0].numpy()
-    # print(boxes.numpy())
     classes = classes[0].numpy()
     scores = scores[0].numpy()
-    # image_np_with_detections = image_np.copy()
-
-    # print(boxes)
-    # print(classes)
-    # filtered_scores = list(filter(lambda x: x > 0.5, scores))
-    # print(filtered_scores)
 
     viz_utils.visualize_boxes_and_labels_on_image_array(
         image_np,
